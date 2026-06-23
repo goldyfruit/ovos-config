@@ -14,9 +14,9 @@ from ovos_config.locations import USER_CONFIG, ASSISTANT_CONFIG
 
 CONFIG = Configuration()
 CONFIGS = [("Joined", CONFIG),
-           ("Sytem", CONFIG.system),
-           ("Assistant", LocalConf(ASSISTANT_CONFIG)),
-           ("User", LocalConf(USER_CONFIG))]
+           ("System", CONFIG.system),
+           ("User", LocalConf(USER_CONFIG)),
+           ("Assistant", LocalConf(ASSISTANT_CONFIG))]
 SECTIONS = [k for k, v in CONFIG.items() if isinstance(v, dict)] + ["base"]
 
 
@@ -148,12 +148,43 @@ def config():
 
 
 @config.command()
+@click.option("--enable", "-e", is_flag=True, help="Enable intent telemetry upload (thank you!)")
+@click.option("--disable", "-d", is_flag=True, help="Disable intent telemetry upload :(")
+def telemetry(enable, disable):
+    """Enable intent telemetry upload for the opendata initiative.
+    OpenData can be seen live at https://opendata.tigregotico.pt"""
+    if enable and disable:
+        raise click.UsageError("Pass either --enable or --disable, not both")
+    config = LocalConf(USER_CONFIG)
+    if "open_data" not in config:
+        config["open_data"] = {"intent_urls": []}
+    if "intent_urls" not in config["open_data"]:
+        config["open_data"]["intent_urls"] = []
+    url = "https://metrics.tigregotico.pt/intents"
+    if enable:
+        if url not in config["open_data"]["intent_urls"]:
+            config["open_data"]["intent_urls"].append(url)
+            console.print(f"Added intent telemetry endpoint: {url}")
+        else:
+            console.print(f"Telemetry endpoint already exists: {url}")
+    elif disable and url in config["open_data"]["intent_urls"]:
+        config["open_data"]["intent_urls"].remove(url)
+        console.print(f"Removed intent telemetry endpoint: {url}")
+    console.print(f"Telemetry urls: {config['open_data']['intent_urls']}")
+    config.store()       
+
+
+@config.command()
 @click.option("--lang", "-l", required=True, help="the language code")
-@click.option("--online", "-on", is_flag=True, help="set default online STT plugin")
-@click.option("--offline", "-off", is_flag=True, help="set default offline STT plugin")
+@click.option("--platform", "-p", required=False, type=click.Choice(["rpi3", "rpi4", "rpi5", "linux", "mac", "termux"]),
+              help="optimize configuration for the selected platform")
+@click.option("--hybrid", "-hy", is_flag=True, help="set default offline TTS and online STT plugins")
+@click.option("--online", "-on", is_flag=True, help="set default online TTS and STT plugins")
+@click.option("--offline", "-off", is_flag=True, help="set default offline TTS and STT plugins")
+@click.option("--gpu", "-g", is_flag=True, help="configure plugins for GPU (only works together with --offline)")
 @click.option("--male", "-m", is_flag=True, help="set default male voice for TTS")
 @click.option("--female", "-f", is_flag=True, help="set default female voice for TTS")
-def autoconfigure(lang, online, offline, male, female):
+def autoconfigure(lang, platform, hybrid, online, offline, gpu, male, female):
     """
 Automatically configures the language, STT, and TTS settings based on user input.
 
@@ -163,23 +194,32 @@ ensures that only one of the mutually exclusive options (online/offline and male
 
 Notes:
 
-    - If neither `online` nor `offline` are provided, defaults to `online`.
+    - Hybrid mode will use offline TTS + online STT
+
+    - If neither `online` nor `offline` are provided, defaults to `hybrid`
 
     - If neither `male` nor `female` are provided, TTS configuration is skipped.
 
     - The function merges configuration files based on the specified options and stores the final configuration in the user's config file.
 """
+    if gpu:
+        if online or hybrid:
+            raise click.UsageError("--gpu can not be used together with --online or --hybrid")
+        if platform and platform.startswith("rpi"):
+            raise click.UsageError("--gpu can not be used with raspberry pi platforms")
+        offline = True
+
     if not online and not offline:
-        console.print("[red]Defaulting to online public servers[/red]")
-        online = True
+        console.print("[red]WARNING: Defaulting STT to online public servers[/red]")
+        hybrid = True
 
     if online and offline:
-        raise click.UsageError("Pass either --online or --offline, not both")
+        hybrid = True
+    if hybrid:
+        online = offline = False
+
     if male and female:
         raise click.UsageError("Pass either --male or --female, not both")
-
-    if not male and not female:
-        console.print("[red]Skipping TTS configuration, pass '--male' or '--female' to set language defaults[/red]")
 
     try:
         from ovos_utils.lang import standardize_lang_tag
@@ -193,15 +233,18 @@ Notes:
     config["tts"] = {"ovos-tts-plugin-server": {}}
     config["stt"] = {"ovos-stt-plugin-server": {}}
 
-    def do_merge(folder):
+    def do_merge(folder, fname=""):
         l2 = stdlang.split("-")[0]
         recs_path = f"{os.path.dirname(__file__)}/recommends"
-        path = f"{recs_path}/{folder}/{lang.lower()}.conf"
-        if not os.path.isfile(path):
-            paths = [f"{recs_path}/{folder}/{f}"
-                     for f in os.listdir(f"{recs_path}/{folder}") if f.startswith(l2)]
-            if paths:
-                path = paths[0]
+        if fname:
+            path = f"{recs_path}/{folder}/{fname}"
+        else:
+            path = f"{recs_path}/{folder}/{lang.lower()}.conf"
+            if not os.path.isfile(path):
+                paths = [f"{recs_path}/{folder}/{f}"
+                         for f in os.listdir(f"{recs_path}/{folder}") if f.startswith(l2)]
+                if paths:
+                    path = paths[0]
 
         if not os.path.isfile(path):
             console.print(f"[red]ERROR: {folder} not available for {stdlang}[/red]")
@@ -212,24 +255,29 @@ Notes:
         console.print(f"Merged config: {c.path}")
 
     do_merge("base")
-    if offline:
-        do_merge("offline_stt")
-        if male:
-            do_merge("offline_male")
-        elif female:
-            do_merge("offline_female")
 
-    elif online:
-        config["tts"]["module"] = "ovos-tts-plugin-server"
-        config["stt"]["module"] = "ovos-stt-plugin-server"
+    if platform:
+        do_merge(f"platform", f"{platform}.conf")
+
+    # select STT
+    if hybrid or online:
         do_merge("online_stt")
-        if male:
-            do_merge("online_male")
-        elif female:
-            do_merge("online_female")
+    else:
+        do_merge("offline_stt")
+
+    # select TTS
+    if not male and not female:
+        console.print("[red]Skipping TTS configuration, pass '--male' or '--female' to set language defaults[/red]")
+    elif hybrid or offline:
+        do_merge("offline_male" if male else "offline_female")
+    else:
+        do_merge("online_male" if male else "online_female")
+
+    if gpu:
+        do_merge("gpu")
+        console.print(f"[blue]STT configured to use GPU[/blue]")
 
     config["lang"] = stdlang
-
     try:
         from ovos_plugin_manager.stt import find_stt_plugins
         from ovos_plugin_manager.tts import find_tts_plugins
@@ -245,9 +293,9 @@ Notes:
             console.print(f"  - '{plugin}'")
 
         missing_plugins = []
-        if config["stt"]["module"] not in available_stt:
+        if "module" in config["stt"] and config["stt"]["module"] not in available_stt:
             missing_plugins.append(f"STT plugin '{config['stt']['module']}'")
-        if config["tts"]["module"] not in available_tts:
+        if "module" in config["tts"] and config["tts"]["module"] not in available_tts:
             missing_plugins.append(f"TTS plugin '{config['tts']['module']}'")
 
         if missing_plugins:

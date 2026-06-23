@@ -1,12 +1,117 @@
 # Changelog
 
-## [1.0.1a1](https://github.com/OpenVoiceOS/ovos-config/tree/1.0.1a1) (2024-11-23)
+## [2.2.0a1](https://github.com/OpenVoiceOS/ovos-config/tree/2.2.0a1) (2026-06-23)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-config/compare/1.0.0...1.0.1a1)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-config/compare/2.1.4a7...2.2.0a1)
+
+**Closed issues:**
+
+- Autoconfig local with gpu offline fails to load whisper model [\#266](https://github.com/OpenVoiceOS/ovos-config/issues/266)
 
 **Merged pull requests:**
 
-- fix: update STT server urls for pt and ca [\#186](https://github.com/OpenVoiceOS/ovos-config/pull/186) ([JarbasAl](https://github.com/JarbasAl))
+- feat: phoonnx as the default offline TTS in autoconfigure recommends [\#272](https://github.com/OpenVoiceOS/ovos-config/pull/272) ([JarbasAl](https://github.com/JarbasAl))
+
+## [2.1.4a7](https://github.com/OpenVoiceOS/ovos-config/tree/2.1.4a7) (2025-12-19)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-config/compare/2.1.4a6...2.1.4a7)
+
+**Merged pull requests:**
+
+- chore\(deps\): update pilosus/action-pip-license-checker action to v3 [\#263](https://github.com/OpenVoiceOS/ovos-config/pull/263) ([renovate[bot]](https://github.com/apps/renovate))
+
+## [2.1.4a6](https://github.com/OpenVoiceOS/ovos-config/tree/2.1.4a6) (2025-12-19)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-config/compare/2.1.4a5...2.1.4a6)
+
+**Merged pull requests:**
+
+- chore\(deps\): update dependency python to 3.14 [\#255](https://github.com/OpenVoiceOS/ovos-config/pull/255) ([renovate[bot]](https://github.com/apps/renovate))
+
+## [2.1.4a5](https://github.com/OpenVoiceOS/ovos-config/tree/2.1.4a5) (2025-12-19)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-config/compare/2.1.4a4...2.1.4a5)
+
+## [2.1.4a4](https://github.com/OpenVoiceOS/ovos-config/tree/2.1.4a4) (2025-12-19)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-config/compare/2.1.4a3...2.1.4a4)
+
+**Merged pull requests:**
+
+- chore\(deps\): update actions/setup-python action to v6 [\#260](https://github.com/OpenVoiceOS/ovos-config/pull/260) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update actions/checkout action to v6 [\#259](https://github.com/OpenVoiceOS/ovos-config/pull/259) ([renovate[bot]](https://github.com/apps/renovate))
+
+## [2.1.4a3](https://github.com/OpenVoiceOS/ovos-config/tree/2.1.4a3) (2025-12-18)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-config/compare/2.1.4a2...2.1.4a3)
+
+**Merged pull requests:**
+
+- chore: Configure Renovate [\#254](https://github.com/OpenVoiceOS/ovos-config/pull/254) ([renovate[bot]](https://github.com/apps/renovate))
+
+## [2.1.4a2](https://github.com/OpenVoiceOS/ovos-config/tree/2.1.4a2) (2025-11-05)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-config/compare/2.1.4a1...2.1.4a2)
+
+**Merged pull requests:**
+
+- enable pre-wake-vad by default [\#251](https://github.com/OpenVoiceOS/ovos-config/pull/251) ([JarbasAl](https://github.com/JarbasAl))
+
+## [2.1.4a1](https://github.com/OpenVoiceOS/ovos-config/tree/2.1.4a1) (2025-10-31)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-config/compare/2.1.3a1...2.1.4a1)
+
+**Merged pull requests:**
+
+- fix: prefer precise onnx [\#249](https://github.com/OpenVoiceOS/ovos-config/pull/249) ([JarbasAl](https://github.com/JarbasAl))
+
+## [2.1.3a1](https://github.com/OpenVoiceOS/ovos-config/tree/2.1.3a1) (2025-10-09)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-config/compare/2.1.2a5...2.1.3a1)
+
+**Merged pull requests:**
+
+- fix: en-us female voice [\#247](https://github.com/OpenVoiceOS/ovos-config/pull/247) ([JarbasAl](https://github.com/JarbasAl))
+
+## [2.1.2a5](https://github.com/OpenVoiceOS/ovos-config/tree/2.1.2a5) (2025-10-09)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-config/compare/2.1.2a4...2.1.2a5)
+
+**Merged pull requests:**
+
+- update default voices [\#242](https://github.com/OpenVoiceOS/ovos-config/pull/242) ([JarbasAl](https://github.com/JarbasAl))
+
+## [2.1.2a4](https://github.com/OpenVoiceOS/ovos-config/tree/2.1.2a4) (2025-09-08)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-config/compare/2.1.2a3...2.1.2a4)
+
+**Merged pull requests:**
+
+- Termux config [\#243](https://github.com/OpenVoiceOS/ovos-config/pull/243) ([JarbasAl](https://github.com/JarbasAl))
+
+## [2.1.2a3](https://github.com/OpenVoiceOS/ovos-config/tree/2.1.2a3) (2025-07-22)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-config/compare/2.1.2a2...2.1.2a3)
+
+**Merged pull requests:**
+
+- Update pt-pt.conf [\#240](https://github.com/OpenVoiceOS/ovos-config/pull/240) ([JarbasAl](https://github.com/JarbasAl))
+
+## [2.1.2a2](https://github.com/OpenVoiceOS/ovos-config/tree/2.1.2a2) (2025-06-18)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-config/compare/2.1.2a1...2.1.2a2)
+
+**Merged pull requests:**
+
+- finetune\_lang\_configs [\#236](https://github.com/OpenVoiceOS/ovos-config/pull/236) ([JarbasAl](https://github.com/JarbasAl))
+
+## [2.1.2a1](https://github.com/OpenVoiceOS/ovos-config/tree/2.1.2a1) (2025-06-18)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-config/compare/2.1.1...2.1.2a1)
+
+**Merged pull requests:**
+
+- fix:default\_pipeline\_recommendations [\#234](https://github.com/OpenVoiceOS/ovos-config/pull/234) ([JarbasAl](https://github.com/JarbasAl))
 
 
 
