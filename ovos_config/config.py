@@ -14,7 +14,7 @@
 #
 import json
 import warnings
-from os.path import isfile, dirname
+from os.path import isfile
 from typing import Optional
 
 from ovos_config.locations import get_xdg_config_locations, ASSISTANT_CONFIG, USER_CONFIG
@@ -242,9 +242,7 @@ class Configuration(dict):
             Configuration.assistant.store()
         paths = [Configuration.distribution.path, Configuration.system.path, Configuration.assistant.path] + \
                 [c.path for c in Configuration.xdg_configs]
-        # FileWatcher watches the containing directory, so one entry per
-        # directory avoids scheduling duplicate handlers.
-        watched = list({dirname(p) for p in paths if isfile(p)})
+        watched = [p for p in paths if isfile(p)]
         if not Configuration._watchdog:
             Configuration._watchdog = FileWatcher(
                 watched,
