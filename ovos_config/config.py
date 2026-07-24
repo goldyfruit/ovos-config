@@ -29,6 +29,21 @@ from ovos_utils.json_helper import flattened_delete, merge_dict
 from ovos_utils.log import LOG
 
 
+def _get_shared_remote_conf(cls):
+    """Lazily construct (once) and return the single shared ``RemoteConf``
+    instance backing the deprecated ``Configuration.remote`` accessor.
+
+    On ``dev``, ``Configuration.remote`` was a plain class attribute built
+    once at class-definition time, so class access and instance access
+    always returned the *same* object. ``RemoteConf()`` now warns on every
+    construction, so both accessors below must share this one cached
+    instance rather than each building their own.
+    """
+    if cls._remote_instance is None:
+        cls._remote_instance = RemoteConf()
+    return cls._remote_instance
+
+
 class _ConfigurationMeta(type):
     """Metaclass that provides a lazily-constructed, deprecated
     ``Configuration.remote`` class attribute.
@@ -40,14 +55,19 @@ class _ConfigurationMeta(type):
     at class-definition time would warn on every import of this module even
     for callers who never touch ``.remote``. This property defers
     construction (and its warning) until first access.
+
+    Note: a metaclass property is only visible via ``Configuration.remote``
+    (class access); instances look up attributes on the class itself, not
+    the metaclass, so ``Configuration`` also defines a matching ``remote``
+    property for ``Configuration().remote`` (instance access) -- see below.
+    Both share ``_get_shared_remote_conf`` so there is only ever one
+    ``RemoteConf`` instance, matching dev's single shared object.
     """
     _remote_instance = None
 
     @property
     def remote(cls):
-        if cls._remote_instance is None:
-            cls._remote_instance = RemoteConf()
-        return cls._remote_instance
+        return _get_shared_remote_conf(cls)
 
 
 class Configuration(dict, metaclass=_ConfigurationMeta):
@@ -63,6 +83,14 @@ class Configuration(dict, metaclass=_ConfigurationMeta):
     xdg_configs = [LocalConf(p) for p in get_xdg_config_locations()]
     _watchdog = None
     _callbacks = []
+
+    @property
+    def remote(self):
+        """DEPRECATED instance-level accessor, mirrors the class-level
+        ``_ConfigurationMeta.remote`` property so ``Configuration().remote``
+        keeps working exactly like it did on dev, where ``remote`` was a
+        plain class attribute reachable from both class and instance."""
+        return _get_shared_remote_conf(type(self))
 
     def __init__(self):
         super().__init__(**self.load_all_configs())
